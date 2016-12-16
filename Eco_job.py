@@ -9,20 +9,22 @@ for i in range(2,100):
 	urls.append('http://economictimes.indiatimes.com/jobs/' + str(i))
 
 columns = ['Heading', 'Link', 'Summary','Date']
-csv_file=open('Eco_Job.csv', 'w')
+csv_file=open('Eco_Job[Dec16].csv', 'w')
 writer = csv.writer(csv_file)
 writer.writerow(columns)
 
 
 #page = urllib2.urlopen(req)
 for url in urls: 
-	req = urllib2.Request(url,headers= hdr)
-	page = urllib2.urlopen(req)
-        print url
+	try:
+		req = urllib2.Request(url,headers= hdr)
+		page = urllib2.urlopen(req)
+        except urllib2.URLError:
+		print 'Error opening url ' + url
+		continue
 	soup = BeautifulSoup(page, 'html.parser') 
 	contents = soup.find('section', attrs = {'id':'pageContent'})
 	a = contents.findAll('div',attrs = {'class' : 'eachStory'})
-        print len(a)
 	#print contents.prettify()
 	lobbying = {}
 	for ele in a:
@@ -39,7 +41,8 @@ for url in urls:
 			#print("------------------------------------")
 			#print(ele.prettify()) 
                 except AttributeError:
-			print 'Error occurs'
+			print 'Attribute Error occured'
+			del lobbying[heading]
                  	continue       
 	for item in lobbying:         
 	      	 writer.writerow([item,lobbying[item]['link'], lobbying[item]['summary'],lobbying[item]['Date']])	
